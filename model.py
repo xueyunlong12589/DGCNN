@@ -18,25 +18,24 @@ class Chebynet(nn.Module):
         adj = generate_cheby_adj(L, self.K)
         for i in range(len(self.gc1)):
             if i == 0:
-                result1 = self.gc1[i](x, adj[i])
+                result = self.gc1[i](x, adj[i])
             else:
-                result1 += self.gc1[i](x, adj[i])
+                result += self.gc1[i](x, adj[i])
         result = F.relu(result)
         return result
 
 
 class GNN(nn.Module):
     def __init__(self, xdim, k_adj, num_out, dropout, nclass=3):
+        #x dim:[batchsize*electrode*feature dimension]
         super(GNN, self).__init__()
 
         self.K = k_adj
         self.layer1 = Chebynet(xdim, k_adj, 32, dropout)
-        #self.layer2 = IAG([xdim[0], xdim[1], 32], k_adj, 64, dropout)
-        #self.layer3 = Chebynet([xdim[0], xdim[1], 64], k_adj, 128, dropout)
         self.dropout1 = nn.Dropout2d(dropout)
         #self.dropout2 = nn.Dropout2d(dropout)
-        self.BN1 = nn.BatchNorm1d(5)
-        self.fc1 = nn.Linear(xdim[1] * 32, 3)
+        self.BN1 = nn.BatchNorm1d(xdim[2])
+        self.fc1 = nn.Linear(xdim[1] * num_out, nclass)
         self.A = nn.Parameter(torch.FloatTensor(xdim[1], xdim[1]).cuda())
         nn.init.kaiming_normal_(self.A, mode='fan_in')
 
