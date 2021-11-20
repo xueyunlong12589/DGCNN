@@ -40,7 +40,7 @@ class DGCNN(nn.Module):
 
     def forward(self, x):
         x = self.BN1(x.transpose(1, 2)).transpose(1, 2)
-        L = normalize_A(A)
+        L = normalize_A(self.A)
         result = self.layer1(x, L)
         result = result.reshape(x.shape[0], -1)
         result = F.relu(self.fc1(result))
