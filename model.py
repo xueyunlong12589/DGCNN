@@ -26,9 +26,9 @@ class Chebynet(nn.Module):
 
 class DGCNN(nn.Module):
     def __init__(self, xdim, k_adj, num_out, nclass=3):
-        #xdim: (batch_size*num_nodes*num_nodes, num_features)
-        #k_adj: The number of layers of graphconvolution
-        #num_out: The feature dimension of the output
+        #xdim: (batch_size*num_nodes*num_features_in)
+        #k_adj: num_layers
+        #num_out: num_features_out
         super(GNN, self).__init__()
         self.K = k_adj
         self.layer1 = Chebynet(xdim, k_adj, num_out, dropout)
