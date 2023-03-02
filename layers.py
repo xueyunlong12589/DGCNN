@@ -6,17 +6,17 @@ from torch.nn.modules.module import Module
 
 class GraphConvolution(nn.Module):
 
-    def __init__(self, num_in, num_out, bias=False):
+    def __init__(self, in_channels, out_channels, bias=False):
 
         super(GraphConvolution, self).__init__()
 
-        self.num_in = num_in
-        self.num_out = num_out
-        self.weight = nn.Parameter(torch.FloatTensor(num_in, num_out).cuda())
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.weight = nn.Parameter(torch.FloatTensor(in_channels, out_channels).cuda())
         nn.init.xavier_normal_(self.weight)
         self.bias = None
         if bias:
-            self.bias = nn.Parameter(torch.FloatTensor(num_out).cuda())
+            self.bias = nn.Parameter(torch.FloatTensor(out_channels).cuda())
             nn.init.zeros_(self.bias)
 
     def forward(self, x, adj):
@@ -28,9 +28,9 @@ class GraphConvolution(nn.Module):
             return out
 
 class Linear(nn.Module):
-    def __init__(self, in_features, out_features, bias=True):
+    def __init__(self, in_channels, out_channels, bias=True):
         super(Linear, self).__init__()
-        self.linear = nn.Linear(in_features, out_features, bias=bias)
+        self.linear = nn.Linear(in_channels, out_channels, bias=bias)
         nn.init.xavier_normal_(self.linear.weight)
         if bias:
             nn.init.zeros_(self.linear.bias)
