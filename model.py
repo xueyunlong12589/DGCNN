@@ -6,12 +6,12 @@ from utils import normalize_A, generate_cheby_adj
 
 
 class Chebynet(nn.Module):
-    def __init__(self, xdim, K, num_out, dropout):
+    def __init__(self, in_channels, K, out_channels):
         super(Chebynet, self).__init__()
         self.K = K
-        self.gc1 = nn.ModuleList()
+        self.gc = nn.ModuleList()
         for i in range(K):
-            self.gc1.append(GraphConvolution(xdim[2], num_out))
+            self.gc.append(GraphConvolution( in_channels,  out_channels))
 
     def forward(self, x,L):
         adj = generate_cheby_adj(L, self.K)
@@ -25,17 +25,18 @@ class Chebynet(nn.Module):
 
 
 class DGCNN(nn.Module):
-    def __init__(self, xdim, k_adj, num_out, nclass=3):
-        #xdim: (batch_size*num_nodes*num_features_in)
-        #k_adj: num_layers
-        #num_out: num_features_out
-        super(GNN, self).__init__()
+    def __init__(self, in_channels,num_electrodes, k_adj, out_channels, num_classes=3):
+        #in_channels(int): The feature dimension of each electrode.
+        #num_electrodes(int): The number of electrodes.
+        #k_adj(int): The number of graph convolutional layers.
+        #out_channel(int): The feature dimension of  the graph after GCN.
+        #num_classes(int): The number of classes to predict.
+        super(DGCNN, self).__init__()
         self.K = k_adj
-        self.layer1 = Chebynet(xdim, k_adj, num_out, dropout)
-        self.BN1 = nn.BatchNorm1d(xdim[2])
-        self.fc1 = Linear(xdim[1] * num_out, 64)
-        self.fc2=Linear(64,nclass)
-        self.A = nn.Parameter(torch.FloatTensor(xdim[1], xdim[1]).cuda())
+        self.layer1 = Chebynet(in_channels, k_adj, out_channels)
+        self.BN1 = nn.BatchNorm1d(in_channels)
+        self.fc = Linear(num_electrodes*out_channels, num_classes)
+        self.A = nn.Parameter(torch.FloatTensor(num_electrodes,num_electrodes).cuda())
         nn.init.xavier_normal_(self.A)
 
     def forward(self, x):
@@ -43,6 +44,5 @@ class DGCNN(nn.Module):
         L = normalize_A(self.A)
         result = self.layer1(x, L)
         result = result.reshape(x.shape[0], -1)
-        result = F.relu(self.fc1(result))
-        result=self.fc2(result)
+        result = self.fc(result)
         return result
