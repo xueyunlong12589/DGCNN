@@ -6,6 +6,8 @@ import torch.nn.functional as F
 
 def normalize_A(A, symmetry=True):
     A = F.relu(A)
+    N=A.shape[0]
+    A=A*(torch.ones(N,N).cuda()-torch.eye(N,N).cuda())
     if symmetry:
         A = A + torch.transpose(A, 0, 1)
         d = torch.sum(A, 1)
