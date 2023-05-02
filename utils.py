@@ -23,7 +23,7 @@ def normalize_A(A, symmetry=True):
     return L
 
 
-def generate_adj(A, K,flag=1):
+def generate_adj(A, K,flag=2):
     #A的次方
     if flag==1:
         support = []
