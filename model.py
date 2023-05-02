@@ -37,7 +37,7 @@ class DGCNN(nn.Module):
         self.BN1 = nn.BatchNorm1d(in_channels)
         self.fc = Linear(num_electrodes*out_channels, num_classes)
         self.A = nn.Parameter(torch.FloatTensor(num_electrodes,num_electrodes).cuda())
-        nn.init.xavier_normal_(self.A)
+        nn.init.uniform_(self.A,0,1)
 
     def forward(self, x):
         x = self.BN1(x.transpose(1, 2)).transpose(1, 2)
