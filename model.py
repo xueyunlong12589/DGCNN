@@ -40,7 +40,7 @@ class DGCNN(nn.Module):
         nn.init.uniform_(self.A,0.01,0.5)
 
     def forward(self, x):
-        x = self.BN1(x.transpose(1, 2)).transpose(1, 2)
+        x = self.BN1(x.transpose(1, 2)).transpose(1, 2) #data can also be standardized offline
         L = normalize_A(self.A)
         result = self.layer1(x, L)
         result = result.reshape(x.shape[0], -1)
